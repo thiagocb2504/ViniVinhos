@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Catálogo - Vini Vinhos</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="img/logo.png">
+</head>
+<body>
+
+<header class="header">
+  <section>
+    <a href="index.html" class="logo">
+      <img src="./img/logo.png" alt="logo">
+    </a>
+  </section>
+</header>
+
+<div class="voltar-container">
+    <a href="index.html" class="btn-voltar">
+        ← Voltar para Home
+    </a>
+</div>
+
+<section class="menu">
+  <h2 class="title">Catálogo Completo</h2>
+
+  <div class="filtros">
+    <button class="filtro-btn active" data-filtro="todos">Todos</button>
+    <button class="filtro-btn" data-filtro="tinto">Tintos</button>
+    <button class="filtro-btn" data-filtro="branco">Brancos</button>
+    <button class="filtro-btn" data-filtro="espumante">Espumantes</button>
+  </div>
+
+  <!-- CATÁLOGO REAL (onde os vinhos vão aparecer) -->
+  <div class="box-container" id="catalogo"></div>
+</section>
+
+<script>
+const numeroWhatsApp = "5561981090715";
+let todosVinhos = [];
+
+// 🔥 PUXANDO DA SUA PLANILHA
+fetch("https://opensheet.elk.sh/139ZqOOfftdnX3RyN6Q0e3QM1vpwJO-Xnvv1Ym-I4QMY/Página1")
+  .then(res => res.json())
+  .then(data => {
+    todosVinhos = data;
+    renderizarVinhos(data);
+  });
+
+// 🎨 MOSTRAR VINHOS NA TELA
+function renderizarVinhos(lista) {
+  const catalogo = document.getElementById("catalogo");
+  catalogo.innerHTML = "";
+
+  lista.forEach(vinho => {
+
+    const mensagem = `Olá! Tenho interesse no vinho ${vinho.Nome} - R$ ${vinho.Preço}`;
+    const linkWhats = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
+
+    catalogo.innerHTML += `
+      <div class="box">
+        <h3>${vinho.Nome}</h3>
+        <img src="${vinho.Imagem}" alt="${vinho.Nome}">
+        <div class="price">R$ ${vinho.Preço}</div>
+        <a href="${linkWhats}" target="_blank" class="btn">
+          Pedir no WhatsApp
+        </a>
+      </div>
+    `;
+  });
+}
+
+// 🔍 FILTRO
+function filtrarPorTipo(tipo) {
+  const filtrados = todosVinhos.filter(v => 
+    v.Tipo && v.Tipo.toLowerCase() === tipo.toLowerCase()
+  );
+  renderizarVinhos(filtrados);
+}
+
+function mostrarTodos() {
+  renderizarVinhos(todosVinhos);
+}
+
+// 🔘 BOTÕES
+document.querySelector('[data-filtro="todos"]').onclick = mostrarTodos;
+document.querySelector('[data-filtro="tinto"]').onclick = () => filtrarPorTipo('TINTO');
+document.querySelector('[data-filtro="branco"]').onclick = () => filtrarPorTipo('BRANCO');
+document.querySelector('[data-filtro="espumante"]').onclick = () => filtrarPorTipo('ESPUMANTE');
+
+// ✨ ANIMAÇÃO
+window.addEventListener("pageshow", function () {
+    document.body.classList.add("loaded");
+});
+
+document.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", function (e) {
+
+        const destino = this.href;
+
+        if (destino && destino.startsWith(window.location.origin)) {
+            e.preventDefault();
+
+            document.body.style.opacity = "0";
+
+            setTimeout(() => {
+                window.location.href = destino;
+            }, 400);
+        }
+    });
+});
+</script>
+
+</body>
+</html>
